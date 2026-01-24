@@ -48,7 +48,7 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
       <div className="absolute top-1/4 -left-24 w-64 h-64 bg-[#2E8B57] opacity-5 rounded-full blur-2xl"></div>
 
       {/* Back button */}
-      <a href='/Login'>
+      <a href='/'>
       <button 
         onClick={onBack}
         className="absolute top-8 left-8 z-20 flex items-center space-x-2 text-slate-600 hover:text-[#2E8B57] transition-colors font-medium group"
