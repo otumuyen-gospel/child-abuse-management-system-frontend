@@ -1,4 +1,68 @@
+import MessageBox from "../../Util/MessageBox";
+import Dialog from "../../Util/Dialog";
+import { useState } from "react";
 const AbuseType = ({ menuItems, activeMenu }) => {
+  const [openExport, setOpenExport] = useState(false)
+  const [openDelete, setOpenDelete] = useState(false)
+  const [openMsgBox, setOpenMsgBox] = useState()
+  const [title, setTitle] = useState("")
+  const [type, setType] = useState("")
+  const [message, setMessage] = useState("")
+  const [cancelLabel, setCancelLabel] = useState("Cancel")
+  const [confirmLabel, setConfirmLabel] = useState("OK")
+
+  const [openCreateDialog, setOpenCreateDialog] = useState(false)
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
+  const [dialogTitle, setDialogTitle] = useState("")
+  const [dialogDesc, setDialogDesc] = useState("")
+
+  const handleOtherMessageBox = (open,title, type, message, confirmLabel)=>{
+    setOpenMsgBox(open)
+    setTitle(title)
+    setType(type)
+    setMessage(message)
+    setConfirmLabel(confirmLabel)
+
+  }
+
+  const handleOpenMessageBox = (openExport,openDelete,title, type, message, cancelLabel, confirmLabel)=>{
+    setOpenExport(openExport)
+    setOpenDelete(openDelete)
+    setTitle(title)
+    setType(type)
+    setMessage(message)
+    setCancelLabel(cancelLabel)
+    setConfirmLabel(confirmLabel)
+
+  }
+
+  const handleOpenDialogBox = (openCreate, openUpdate, title, description)=>{
+    setOpenCreateDialog(openCreate)
+    setOpenUpdateDialog(openUpdate)
+    setDialogTitle(title)
+    setDialogDesc(description)
+  }
+
+  const handleCloseDialogBox = ()=>{
+    setOpenCreateDialog(false)
+    setOpenUpdateDialog(false)
+  }
+
+  const handleCloseMessageBox = ()=>{
+    setOpenExport(false)
+    setOpenDelete(false)
+    setOpenMsgBox(false)
+  }
+  const handleConfirmMessageBox = (operationType)=>{
+     //check operation type and call appropriate operations to run
+    if(operationType === "delete"){
+      setOpenExport(false)
+    }
+    else if(operationType === "export"){
+       setOpenDelete(false)
+    }
+   
+  }
     return (
         <div className="animate-in fade-in duration-500">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -7,8 +71,13 @@ const AbuseType = ({ menuItems, activeMenu }) => {
             <p className="text-slate-500 text-xs md:text-sm">List Of Child Abuse Types</p>
           </div>
           <div className="flex w-full sm:w-auto space-x-2 md:space-x-3">
-            <button className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-slate-50 transition-colors">Export</button>
-            <button className="flex-[2] sm:flex-none bg-[#2E8B57] text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-[#257045] transition-colors shadow-lg shadow-[#2E8B57]/20 whitespace-nowrap">+ Add Entry</button>
+            <button onClick={()=>handleOpenMessageBox(true, false, "Export abuse types", 
+            "info", "This action will create an excel record on all the abuse types","Cancel", "OK")} 
+            className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-slate-50 transition-colors">
+              Export</button>
+            <button onClick={()=>handleOpenDialogBox(true, false, "New Abuse Type", "Please Enter Details of Abuse Type Below")}
+            className="flex-[2] sm:flex-none bg-[#2E8B57] text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-[#257045] transition-colors shadow-lg shadow-[#2E8B57]/20 whitespace-nowrap">
+              + Add Entry</button>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -32,10 +101,12 @@ const AbuseType = ({ menuItems, activeMenu }) => {
                          <td className="py-4 font-bold text-slate-700">Sexual Abuse</td>
                          <td className="py-4 text-slate-500">Having sexual contact with a child</td>
                           <td className="py-4 text-right">
-                           <button className="text-[#2E8B57] font-bold hover:underline">Update</button>
+                           <button onClick={()=>handleOpenDialogBox(false, true, "Update Abuse Type", "Please Enter New Details of Abuse Type Below")}
+                           className="text-[#2E8B57] font-bold hover:underline">Update</button>
                          </td>
                          <td className="py-4 text-right">
-                           <button className="text-[#2E8B57] font-bold hover:underline">Delete</button>
+                           <button className="text-[#2E8B57] font-bold hover:underline" onClick={()=>handleOpenMessageBox(false, true, "Delete This Item", 
+                           "warning", "This action will delete the selected record are sure to do this ?","Cancel", "YES")}>Delete</button>
                          </td>
                        </tr>
                      ))}
@@ -44,20 +115,134 @@ const AbuseType = ({ menuItems, activeMenu }) => {
                </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 mt-4">
                  <div className="flex w-full sm:w-auto space-x-2 md:space-x-3">
-                    <button className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-slate-50 transition-colors">
-                        <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    <button className="flex-1 bg-white border border-slate-200 text-slate-600 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-slate-50 transition-colors">
+                        <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                         </svg>
                     </button>
-                    <button className="flex-[2] sm:flex-none bg-[#2E8B57] text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-[#257045] transition-colors shadow-lg shadow-[#2E8B57]/20 whitespace-nowrap">
-                       <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
+                    <button className="flex-[1] bg-[#2E8B57] text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-[#257045] transition-colors shadow-lg shadow-[#2E8B57]/20 whitespace-nowrap">
+                       <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                       </svg>
                     </button>
                  </div>
                </div>
+
+               <MessageBox isOpen={openExport} title={title} message={message}
+               type={type} onClose={handleCloseMessageBox} 
+               onConfirm={()=>handleConfirmMessageBox("export")} cancelLabel={cancelLabel} confirmLabel={confirmLabel}/>
+               
+               <MessageBox isOpen={openDelete} title={title} message={message}
+               type={type} onClose={handleCloseMessageBox} 
+               onConfirm={()=>handleConfirmMessageBox("delete")} cancelLabel={cancelLabel} confirmLabel={confirmLabel}/>
+
+               <MessageBox isOpen={openMsgBox} message={message} title={title}
+               type={type} onClose={handleCloseMessageBox} confirmLabel={confirmLabel}/>
+
+               <Dialog isOpen={openCreateDialog} title={dialogTitle} description={dialogDesc} 
+               onClose={handleCloseDialogBox}
+               children={
+                <div className="space-y-6 py-2">
+                   <div className="space-y-1.5">
+                       <label htmlFor="typeName" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        TypeName</label>
+                       <input 
+                           id="typeName"
+                           type="text" 
+                           defaultValue="Physical Neglect"
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900" 
+                           placeholder="e.g. Psychological Maltreatment" 
+                        />
+                   </div>
+            
+                   <div className="space-y-1.5">
+                          <label htmlFor="typeDescription" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                              TypeDescription
+                          </label>
+                          <textarea 
+                              id="typeDescription"
+                              rows="5"
+                              defaultValue="The failure to provide for a child's basic physical needs, including food, clothing, shelter, medical care, or supervision."
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all resize-none font-medium text-slate-900 leading-relaxed" 
+                              placeholder="Detailed legal definition and mandatory reporting indicators..."
+                          />
+                    </div>
+
+                    <div className="p-4 bg-[#E0F2F1]/50 rounded-2xl border border-[#2E8B57]/10">
+                       <p className="text-xs font-semibold text-[#257045] flex items-center space-x-2">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                      <span>Updating this classification will affect all linked future reports.</span>
+                      </p>
+                   </div>
+                </div>}
+               footerActions={
+                 <>
+                   <button  onClick={()=>{}}
+                       className="w-full sm:w-auto px-8 py-2.5 bg-[#2E8B57] text-white rounded-xl font-bold shadow-lg shadow-[#2E8B57]/10 hover:bg-[#257045] transition-all"
+                    >Update</button>
+                   <button 
+                     onClick={handleCloseDialogBox}
+                     className="w-full sm:w-auto px-8 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"
+                    >Cancel</button>
+                 </>
+                }
+               />
+
+               <Dialog isOpen={openUpdateDialog} title={dialogTitle} description={dialogDesc} 
+               onClose={handleCloseDialogBox}
+               children={
+                <div className="space-y-6 py-2">
+                   <div className="space-y-1.5">
+                       <label htmlFor="typeName" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        TypeName</label>
+                       <input 
+                           id="typeName"
+                           type="text" 
+                           defaultValue="Physical Neglect"
+                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900" 
+                           placeholder="e.g. Psychological Maltreatment" 
+                        />
+                   </div>
+            
+                   <div className="space-y-1.5">
+                          <label htmlFor="typeDescription" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                              TypeDescription
+                          </label>
+                          <textarea 
+                              id="typeDescription"
+                              rows="5"
+                              defaultValue="The failure to provide for a child's basic physical needs, including food, clothing, shelter, medical care, or supervision."
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all resize-none font-medium text-slate-900 leading-relaxed" 
+                              placeholder="Detailed legal definition and mandatory reporting indicators..."
+                          />
+                    </div>
+
+                    <div className="p-4 bg-[#E0F2F1]/50 rounded-2xl border border-[#2E8B57]/10">
+                       <p className="text-xs font-semibold text-[#257045] flex items-center space-x-2">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                      <span>Updating this classification will affect all linked future reports.</span>
+                      </p>
+                   </div>
+                </div>}
+               footerActions={
+                 <>
+                   <button  onClick={()=>{}}
+                       className="w-full sm:w-auto px-8 py-2.5 bg-[#2E8B57] text-white rounded-xl font-bold shadow-lg shadow-[#2E8B57]/10 hover:bg-[#257045] transition-all"
+                    >Update</button>
+                   <button 
+                     onClick={handleCloseDialogBox}
+                     className="w-full sm:w-auto px-8 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"
+                    >Cancel</button>
+                 </>
+                }
+              />
+
       </div>
     )
 }
