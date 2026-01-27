@@ -1,7 +1,10 @@
 import MessageBox from "../../Util/MessageBox";
 import Dialog from "../../Util/Dialog";
 import { useState } from "react";
+import { useGlobalVariable } from "../../Util/GlobalContext";
 const AbuseType = ({ menuItems, activeMenu }) => {
+  const { globalVariable, setGlobalVariable } = useGlobalVariable();
+  const [isLoading, setIsLoading] = useState(false);
   const [openExport, setOpenExport] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
   const [openMsgBox, setOpenMsgBox] = useState()
@@ -15,6 +18,7 @@ const AbuseType = ({ menuItems, activeMenu }) => {
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
   const [dialogTitle, setDialogTitle] = useState("")
   const [dialogDesc, setDialogDesc] = useState("")
+
 
   const handleOtherMessageBox = (open,title, type, message, confirmLabel)=>{
     setOpenMsgBox(open)
@@ -46,20 +50,37 @@ const AbuseType = ({ menuItems, activeMenu }) => {
   const handleCloseDialogBox = ()=>{
     setOpenCreateDialog(false)
     setOpenUpdateDialog(false)
+    setIsLoading(false)
   }
 
   const handleCloseMessageBox = ()=>{
     setOpenExport(false)
     setOpenDelete(false)
     setOpenMsgBox(false)
+    setIsLoading(false)
   }
   const handleConfirmMessageBox = (operationType)=>{
      //check operation type and call appropriate operations to run
+     setIsLoading(true)
     if(operationType === "delete"){
-      setOpenExport(false)
+      //call the function API operation and then reset loading to false
+       //setOpenExport(false)
+       //setIsLoading(false)
     }
     else if(operationType === "export"){
-       setOpenDelete(false)
+       //call the function API operation and then reset loading to false
+       //setOpenExport(false)
+       //setIsLoading(false)
+    }
+     else if(operationType === "create"){
+       //call the function API operation and then reset loading to false
+       //setOpenCreateDialog(false)
+       //setIsLoading(false)
+    }
+     else if(operationType === "update"){
+       //call the function API operation and then reset loading to false
+       //setOpenUpdateDialog(false)
+       //setIsLoading(false)
     }
    
   }
@@ -80,6 +101,7 @@ const AbuseType = ({ menuItems, activeMenu }) => {
               + Add Entry</button>
           </div>
         </div>
+        <p className="text-xs mt-0 mb-0">Search Results: {globalVariable}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <div className="lg:col-span-4 bg-white p-5 md:p-8 rounded-3xl border border-slate-100 shadow-sm mt-6 overflow-hidden">
                <h3 className="text-base md:text-lg font-bold text-slate-800 mb-6">Abuse Type Records</h3>
@@ -129,12 +151,16 @@ const AbuseType = ({ menuItems, activeMenu }) => {
                     </button>
                  </div>
                </div>
+               {/*}
+               <button onClick={()=>handleOtherMessageBox(true,"message alert",'error',"type error has occured","Close")}>
+                test other message box
+               </button> {*/}
 
-               <MessageBox isOpen={openExport} title={title} message={message}
+               <MessageBox isOpen={openExport} isLoading={isLoading} title={title} message={message}
                type={type} onClose={handleCloseMessageBox} 
                onConfirm={()=>handleConfirmMessageBox("export")} cancelLabel={cancelLabel} confirmLabel={confirmLabel}/>
                
-               <MessageBox isOpen={openDelete} title={title} message={message}
+               <MessageBox isOpen={openDelete} isLoading={isLoading} title={title} message={message}
                type={type} onClose={handleCloseMessageBox} 
                onConfirm={()=>handleConfirmMessageBox("delete")} cancelLabel={cancelLabel} confirmLabel={confirmLabel}/>
 
@@ -175,15 +201,24 @@ const AbuseType = ({ menuItems, activeMenu }) => {
                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                        </svg>
-                      <span>Updating this classification will affect all linked future reports.</span>
+                      <span>This form creates new data record in the database.</span>
                       </p>
                    </div>
                 </div>}
                footerActions={
                  <>
-                   <button  onClick={()=>{}}
+                   <button  onClick={()=>handleConfirmMessageBox("create")} disabled={isLoading}
                        className="w-full sm:w-auto px-8 py-2.5 bg-[#2E8B57] text-white rounded-xl font-bold shadow-lg shadow-[#2E8B57]/10 hover:bg-[#257045] transition-all"
-                    >Update</button>
+                    >
+        
+                       {isLoading ? (
+                            <>
+                              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </>
+                        ) : (
+                            <span>Create</span>
+                        )}
+                    </button>
                    <button 
                      onClick={handleCloseDialogBox}
                      className="w-full sm:w-auto px-8 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"
@@ -232,9 +267,17 @@ const AbuseType = ({ menuItems, activeMenu }) => {
                 </div>}
                footerActions={
                  <>
-                   <button  onClick={()=>{}}
+                   <button  onClick={()=>handleConfirmMessageBox("update")}
                        className="w-full sm:w-auto px-8 py-2.5 bg-[#2E8B57] text-white rounded-xl font-bold shadow-lg shadow-[#2E8B57]/10 hover:bg-[#257045] transition-all"
-                    >Update</button>
+                    >
+                      {isLoading ? (
+                            <>
+                              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </>
+                        ) : (
+                            <span>Update</span>
+                        )}
+                    </button>
                    <button 
                      onClick={handleCloseDialogBox}
                      className="w-full sm:w-auto px-8 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"

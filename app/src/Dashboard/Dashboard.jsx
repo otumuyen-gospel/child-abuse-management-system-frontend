@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Home from './components/Home';
 import AbuseType from './components/AbuseType';
 import PlaceHolder from './components/PlaceHolder';
+import { useGlobalVariable } from '../Util/GlobalContext';
 
 const SidebarItem = ({ icon, label, active, onClick, collapsed }) => (
   <button
@@ -23,11 +24,23 @@ const SidebarItem = ({ icon, label, active, onClick, collapsed }) => (
 );
 
 const Dashboard = ({ onLogout }) => {
+  const { globalVariable, setGlobalVariable } = useGlobalVariable();
   const [activeMenu, setActiveMenu] = useState('Dashboard Home');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      setGlobalVariable(inputValue);
+    }
+  };
+
+  const handleChange = (event) => {
+    setInputValue(event.target.value);
+  };
 
   // Close mobile sidebar on menu change
   const handleMenuClick = (label) => {
@@ -153,6 +166,9 @@ const Dashboard = ({ onLogout }) => {
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </span>
               <input 
+                value={inputValue}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 type="text" 
                 placeholder="Search..." 
                 className="pl-9 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all w-32 sm:w-64 md:w-80 lg:w-96"
