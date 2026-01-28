@@ -104,7 +104,7 @@ const Agency = ({ menuItems, activeMenu }) => {
         <p className="text-xs mt-0 mb-0">Search Results: {globalVariable}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <div className="lg:col-span-4 bg-white p-5 md:p-8 rounded-3xl border border-slate-100 shadow-sm mt-6 overflow-hidden">
-               <h3 className="text-base md:text-lg font-bold text-slate-800 mb-6">Abuse Type Records</h3>
+               <h3 className="text-base md:text-lg font-bold text-slate-800 mb-6">Agency Records</h3>
                <div className="overflow-x-auto -mx-5 md:mx-0 px-5 md:px-0">
                  <table className="w-full text-left min-w-[600px]">
                    <thead>
@@ -305,7 +305,7 @@ const Agency = ({ menuItems, activeMenu }) => {
                           </label>
                           <input
                               id="Phone"
-                              type="telephone"
+                              type="tel"
                               defaultValue="08012345000"
                               className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all resize-none font-medium text-slate-900 leading-relaxed" 
                               placeholder="phone number"
