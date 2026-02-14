@@ -126,6 +126,7 @@ const Reports = ({ menuItems, activeMenu }) => {
                          <td className="py-4 font-bold text-slate-700">#1234</td>
                          <td className="py-4 text-slate-500">source</td>
                          <th className="pb-4">summary</th>
+                         <th className="pb-4">status</th>
                          <th className="pb-4">date</th>
                           <td className="py-4 text-right">
                            <button onClick={()=>handleOpenDialogBox(false, true, "Update Report", "Please Enter New Details Below")}
