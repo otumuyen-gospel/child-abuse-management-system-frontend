@@ -1,4 +1,23 @@
+import Dialog from "../../Util/Dialog";
+import { useState } from "react";
+import { useGlobalVariable } from "../../Util/GlobalContext";
 const Home = ({ menuItems, activeMenu }) => {
+    const { globalVariable, setGlobalVariable } = useGlobalVariable();
+    const [isLoading, setIsLoading] = useState(false);
+    const [openUpdateDialog, setOpenUpdateDialog] = useState(false)
+    const [dialogTitle, setDialogTitle] = useState("")
+    const [dialogDesc, setDialogDesc] = useState("")
+  
+    const handleOpenDialogBox = (openUpdate, title, description)=>{
+      setOpenUpdateDialog(openUpdate)
+      setDialogTitle(title)
+      setDialogDesc(description)
+    }
+  
+    const handleCloseDialogBox = ()=>{
+      setOpenUpdateDialog(false)
+      setIsLoading(false)
+    }
     return (
         <div className="animate-in fade-in duration-500">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
@@ -7,8 +26,7 @@ const Home = ({ menuItems, activeMenu }) => {
             <p className="text-slate-500 text-xs md:text-sm">System administration and data management</p>
           </div>
           <div className="flex w-full sm:w-auto space-x-2 md:space-x-3">
-            <button className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-slate-50 transition-colors">Export</button>
-            <button className="flex-[2] sm:flex-none bg-[#2E8B57] text-white px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-semibold hover:bg-[#257045] transition-colors shadow-lg shadow-[#2E8B57]/20 whitespace-nowrap">+ Add Entry</button>
+            <p className="text-xs mt-0 mb-0">Search Results: {globalVariable}</p>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -48,7 +66,7 @@ const Home = ({ menuItems, activeMenu }) => {
               <div className="mt-2 text-emerald-500 text-[10px] md:text-xs font-bold">94% Success</div>
             </div>
             <div className="lg:col-span-4 bg-white p-5 md:p-8 rounded-3xl border border-slate-100 shadow-sm mt-6 overflow-hidden">
-               <h3 className="text-base md:text-lg font-bold text-slate-800 mb-6">Recent Investigation Logs</h3>
+               <h3 className="text-base md:text-lg font-bold text-slate-800 mb-6">Recent Case Logs</h3>
                <div className="overflow-x-auto -mx-5 md:mx-0 px-5 md:px-0">
                  <table className="w-full text-left min-w-[600px]">
                    <thead>
@@ -72,12 +90,100 @@ const Home = ({ menuItems, activeMenu }) => {
                            </span>
                          </td>
                          <td className="py-4 text-right">
-                           <button className="text-[#2E8B57] font-bold hover:underline">View</button>
+                           <button className="text-[#2E8B57] font-bold hover:underline" onClick={() => handleOpenDialogBox(true, `Details`, `Details for case #SG-24-0$`)}>
+                            View</button>
                          </td>
                        </tr>
                      ))}
                    </tbody>
                  </table>
+                 <Dialog isOpen={openUpdateDialog} title={dialogTitle} description={dialogDesc} 
+               onClose={handleCloseDialogBox}
+               children={
+                <div className="space-y-6 py-2">
+                   <div className="space-y-1.5">
+                       <label htmlFor="report" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Report ID</label>
+                        <input name="report" type="text" value="#SG-24-01"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="reporter" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Reporter</label>
+                        <input name="reporter" type="text" value="John Doe"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="victim" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Victim</label>
+                        <input name="victim" type="text" value="Jane Smith"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="perpetrator" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Perpetrator</label>
+                        <input name="perpetrator" type="text" value="James Johnson"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="case_worker" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Case Worker</label>
+                        <input name="case_worker" type="text" value="Okunoye Okpokor"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+            
+
+                    <div className="space-y-1.5">
+                       <label htmlFor="abusetype" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Abuse Type</label>
+                        <input name="abusetype" type="text" value="Physical"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                    <div className="space-y-1.5">
+                       <label htmlFor="startdate" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Start Date</label>
+                        <input name="startdate" type="date" placeholder="11-20-2009"
+                        required className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="enddate" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        End Date</label>
+                        <input name="enddate" type="date" placeholder="11-20-2009"
+                        required  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+
+                   <div className="space-y-1.5">
+                       <label htmlFor="outcome" className="text-xs font-bold uppercase tracking-widest text-slate-400 pl-1">
+                        Outcome</label>
+                        <textarea name="outcome" rows={10} value="Case is currently under investigation,"
+                        required  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#2E8B57]/20 transition-all font-medium text-slate-900 appearance-none"/>
+                   </div>
+              
+
+                    <div className="p-4 bg-[#E0F2F1]/50 rounded-2xl border border-[#2E8B57]/10">
+                       <p className="text-xs font-semibold text-[#257045] flex items-center space-x-2">
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                       </svg>
+                      <span>Data record in the database.</span>
+                      </p>
+                   </div>
+                </div>}
+               footerActions={
+                 <>
+                   <button 
+                     onClick={handleCloseDialogBox}
+                     className="w-full sm:w-auto px-8 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-all"
+                    >Cancel</button>
+                 </>
+                }
+              />
                </div>
             </div>
           </div>
