@@ -1,7 +1,12 @@
-
 import React, { useState } from 'react';
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Config } from "../Util/Configs";
+import dayjs from 'dayjs';
 
-const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
+const Signup = () => {
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -9,15 +14,15 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
     lastName: '',
     middleName: '',
     maidenName: '',
-    dob: '',
+    dob: dayjs(),
     phone: '',
     email: '',
-    entranceDate: '',
-    gender: ''
+    entranceDate: dayjs(),
+    gender: '',
   });
   
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,14 +31,22 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    console.log('Registering user:', formData);
-    
-    // Simulate API registration process
-    setTimeout(() => {
-      setIsLoading(false);
-      onSignupSuccess();
-    }, 2000);
+    setIsDisabled(true)  //disable button
+    formData.dob = dayjs(formData.dob).format('YYYY-MM-DD');
+    formData.entranceDate = dayjs(formData.entranceDate).format('YYYY-MM-DD hh:mm:ss');
+    axios.post(Config.SERVER_BASE_URL+"/auth/signup/reporter/",
+      formData).then((res) => {
+        setIsDisabled(false)  //re-enable button
+        setError('Account created successfully! Redirection to Login Page...')
+        setTimeout(() => {navigate("/login/")}, 2000);
+      }).catch((err) => {
+        setIsDisabled(false)  //re-enable button
+        if (err.response) {
+          setError(JSON.stringify(err.response.data['detail']));
+        }else{
+          setError("Error : Unable to connnect to servers");
+        }
+      })
   };
 
   const inputStyle = "w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#2E8B57]/20 focus:border-[#2E8B57] transition-all text-sm";
@@ -50,7 +63,6 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
       {/* Back button */}
       <a href='/'>
       <button 
-        onClick={onBack}
         className="absolute top-8 left-8 z-20 flex items-center space-x-2 text-slate-600 hover:text-[#2E8B57] transition-colors font-medium group"
       >
         <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,11 +182,10 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
                     <div className="relative">
                       <span className={iconStyle}><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg></span>
                       <select name="gender" value={formData.gender} onChange={handleChange} required className={`${inputStyle} appearance-none`}>
-                        <option value="">Select Gender</option>
+                        <option value="" selected disabled>Select Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
-                        <option value="other">Other</option>
-                        <option value="private">Prefer not to say</option>
+                        <option value="others">Others</option>
                       </select>
                     </div>
                   </div>
@@ -213,10 +224,10 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
             <div className="flex flex-col items-center pt-6 space-y-4">
               <button 
                 type="submit"
-                disabled={isLoading}
+                disabled={isDisabled}
                 className="w-full md:w-auto px-16 bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-3"
               >
-                {isLoading ? (
+                {isDisabled ? (
                   <>
                     <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     <span>Submitting Data...</span>
@@ -225,9 +236,9 @@ const Signup = ({ onBack, onLoginRedirect, onSignupSuccess }) => {
                   <span>Register Account</span>
                 )}
               </button>
-              
+              {error && <p className='text-red-500 text-sm mt-2 text-center'>{error}</p>}
               <p className="text-slate-500 text-sm font-medium">
-                Already have a portal account? <a href='/Login' onClick={onLoginRedirect} className="text-[#2E8B57] font-bold hover:underline">Sign In</a>
+                Already have a portal account? <a href='/Login' className="text-[#2E8B57] font-bold hover:underline">Sign In</a>
               </p>
             </div>
           </form>
