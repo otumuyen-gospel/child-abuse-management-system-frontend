@@ -137,7 +137,7 @@ const Login = () => {
             <button 
                 type="submit"
                 disabled={isDisabled}
-                className="w-full md:w-auto px-16 bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-3"
+                className="w-full bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-3"
               >
                 {isDisabled ? (
                   <>

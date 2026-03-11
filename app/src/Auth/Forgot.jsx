@@ -1,12 +1,31 @@
 
 import React, { useState } from 'react';
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Config } from "../Util/Configs";
 
-const Forgot = ({ onBack }) => {
+const Forgot = () => {
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
+  const [error, setError] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Authentication logic would go here
+    setIsDisabled(true);
+    axios.post(Config.SERVER_BASE_URL+"/auth/reset/request/",
+      { email }).then((res) => {
+        setIsDisabled(false)  //re-enable button
+        setError(res.data['message']);
+        setTimeout(() => {navigate("/Verification/", {state:{ userEmail:email, }})}, 2000);
+      }).catch((err) => {
+        setIsDisabled(false)  //re-enable button
+        if (err.response) {
+          setError(JSON.stringify(err.response.data["error"]));
+        }else{
+          setError("Error : Unable to connnect to servers");
+        }
+      })
   };
 
   return (
@@ -18,7 +37,6 @@ const Forgot = ({ onBack }) => {
       {/* Back button */}
       <a href='/'>
       <button 
-        onClick={onBack}
         className="absolute top-8 left-8 z-20 flex items-center space-x-2 text-slate-600 hover:text-[#2E8B57] transition-colors font-medium group"
       >
         <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,12 +87,23 @@ const Forgot = ({ onBack }) => {
                 <a href='/Login' type="button" className="text-xs font-bold text-[#2E8B57] hover:underline">Remembered My Password?</a>
               </div>
             </div>
+            <center>
             <button 
-              type="submit"
-              className="w-full bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98]"
-            >
-              Submit & Proceed
-            </button>
+                type="submit"
+                disabled={isDisabled}
+                className="w-full bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-3"
+              >
+                {isDisabled ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Submitting Data...</span>
+                  </>
+                ) : (
+                  <span>Submit & Proceed</span>
+                )}
+              </button>
+              </center>
+              {error && <p className='text-red-500 text-sm mt-2 text-center'>{error}</p>}
           </form>
 
           {/* Divider */}

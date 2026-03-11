@@ -1,10 +1,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Config } from "../Util/Configs";
 
-const Verification = ({ onBack, onVerifySuccess }) => {
+const Verification = () => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(59);
   const inputs = useRef([]);
+  const navigate = useNavigate();
+  const location = useLocation()
+  const receivedData = location.state;
+  const [error, setError] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -32,13 +41,41 @@ const Verification = ({ onBack, onVerifySuccess }) => {
     }
   };
 
+  const handleResend = () =>{
+    setIsSending(true);
+    axios.post(Config.SERVER_BASE_URL+"/auth/reset/request/",
+      { email: receivedData.userEmail }).then((res) => {
+        setError(res.data['message']);
+        setIsSending(false);
+      }).catch((err) => {
+        setIsSending(false);
+        if (err.response) {
+          setError(JSON.stringify(err.response.data["error"]));
+        }else{
+          setError("Error : Unable to connnect to servers");
+        }
+      })
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const fullCode = code.join('');
+    const data =  {email:receivedData.userEmail, otp:fullCode};
     if (fullCode.length === 6) {
-      console.log('Verifying code:', fullCode);
-      // Simulate verification logic
-      onVerifySuccess();
+      setIsDisabled(true);
+      axios.post(Config.SERVER_BASE_URL+"/auth/reset/verify/",
+      data).then((res) => {
+        setIsDisabled(false)  //re-enable button
+        setError(res.data['message']);
+        setTimeout(() => {navigate("/ChangePassword/",{state:{ userEmail:data.email, }})}, 2000);
+      }).catch((err) => {
+        setIsDisabled(false)  //re-enable button
+        if (err.response) {
+          setError(JSON.stringify(err.response.data["error"]));
+        }else{
+          setError("Error : Unable to connnect to servers");
+        }
+      })
     }
   };
 
@@ -51,7 +88,6 @@ const Verification = ({ onBack, onVerifySuccess }) => {
       {/* Back button */}
       <a href='/'>
       <button 
-        onClick={onBack}
         className="absolute top-8 left-8 z-20 flex items-center space-x-2 text-slate-600 hover:text-[#2E8B57] transition-colors font-medium group"
       >
         <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,10 +140,19 @@ const Verification = ({ onBack, onVerifySuccess }) => {
               <button 
                 type="submit"
                 disabled={code.some(d => d === '')}
-                className="w-full bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+                className="w-full bg-[#2E8B57] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#257045] transition-all shadow-xl shadow-[#2E8B57]/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center space-x-3"
               >
-                Verify & Continue
+                {isDisabled ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span>Verifying otp Code...</span>
+                  </>
+                ) : (
+                  <span>Verify & Continue</span>
+                )}
               </button>
+
+               {error && <p className='text-red-500 text-sm mt-2 text-center'>{error}</p>}
 
               <div className="text-sm font-medium">
                 {timer > 0 ? (
@@ -117,10 +162,15 @@ const Verification = ({ onBack, onVerifySuccess }) => {
                 ) : (
                   <button 
                     type="button"
-                    onClick={() => setTimer(59)}
+                    onClick={handleResend}
+                    disabled={isSending}
                     className="text-[#2E8B57] font-bold hover:underline"
                   >
-                    Didn't get the code? Resend
+                    {isSending ? (
+                      "Resending code..."
+                    ) : (
+                      "Didn't get the code? Resend"
+                    )}
                   </button>
                 )}
               </div>
