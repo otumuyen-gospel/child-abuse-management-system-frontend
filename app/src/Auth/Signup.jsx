@@ -6,7 +6,8 @@ import dayjs from 'dayjs';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -30,6 +31,8 @@ const Signup = () => {
   };
 
   const handleSubmit = (e) => {
+    setError('');
+    setSuccess('');
     e.preventDefault();
     setIsDisabled(true)  //disable button
     formData.dob = dayjs(formData.dob).format('YYYY-MM-DD');
@@ -37,7 +40,7 @@ const Signup = () => {
     axios.post(Config.SERVER_BASE_URL+"/auth/signup/reporter/",
       formData).then((res) => {
         setIsDisabled(false)  //re-enable button
-        setError('Account created successfully! Redirection to Login Page...')
+        setSuccess('Account created successfully! Redirection to Login Page...')
         setTimeout(() => {navigate("/login/")}, 2000);
       }).catch((err) => {
         setIsDisabled(false)  //re-enable button
@@ -236,7 +239,25 @@ const Signup = () => {
                   <span>Register Account</span>
                 )}
               </button>
-              {error && <p className='text-red-500 text-sm mt-2 text-center'>{error}</p>}
+              
+              {error && (
+                  <div className="p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl font-medium flex items-center animate-shake">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {error}
+                  </div>
+                )}
+
+                {success && (
+                  <div className="p-4 bg-green-50 border border-green-100 text-green-600 text-sm rounded-xl font-medium flex items-center animate-shake">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {success}
+                  </div>
+                )}
+
               <p className="text-slate-500 text-sm font-medium">
                 Already have a portal account? <a href='/Login' className="text-[#2E8B57] font-bold hover:underline">Sign In</a>
               </p>

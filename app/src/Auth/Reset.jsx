@@ -1,17 +1,24 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Config } from "../Util/Configs";
 
-const Reset = ({ onBack }) => {
+const Reset = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const location = useLocation()
+  const receivedData = location.state;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
@@ -24,12 +31,21 @@ const Reset = ({ onBack }) => {
     }
 
     setIsLoading(true);
-    // Simulate API call for password update
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSubmitted(true);
-      console.log('Password updated successfully');
-    }, 1500);
+    const data =  {email:receivedData.userEmail, new_password:password};
+    axios.post(Config.SERVER_BASE_URL+"/auth/reset/password/",
+      data).then((res) => {
+        setIsLoading(false)  //re-enable button
+        setIsSubmitted(true);
+        setSuccess(res.data['message']);
+      }).catch((err) => {
+        setIsLoading(false)  //re-enable button
+        if (err.response) {
+          setError(JSON.stringify(err.response.data["error"]));
+        }else{
+          setError("Error : Unable to connnect to servers");
+        }
+      })
+    
   };
 
   const getStrength = () => {
@@ -50,9 +66,8 @@ const Reset = ({ onBack }) => {
       
       {/* Back button */}
       {!isSubmitted && (
-        <a href='/'>
+        <a href='/login'>
         <button 
-          onClick={onBack}
           className="absolute top-8 left-8 z-20 flex items-center space-x-2 text-slate-600 hover:text-[#2E8B57] transition-colors font-medium group"
         >
           <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,6 +105,15 @@ const Reset = ({ onBack }) => {
                       <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     {error}
+                  </div>
+                )}
+
+                {success && (
+                  <div className="p-4 bg-green-50 border border-green-100 text-green-600 text-sm rounded-xl font-medium flex items-center animate-shake">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    {success}
                   </div>
                 )}
 
